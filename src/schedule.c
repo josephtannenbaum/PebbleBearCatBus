@@ -245,7 +245,7 @@ int fmt_time(char ** str, int h, int m, int th, int tm) {
     }
   }
   
-  if (th == 99) {
+  if (th > 30) {
     *str = malloc(strlen(NO_MORE_BUS)+2);
     snprintf(*str, strlen(NO_MORE_BUS)+1, NO_MORE_BUS);
     return 0;
