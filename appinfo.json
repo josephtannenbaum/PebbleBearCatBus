@@ -1,0 +1,25 @@
+{
+    "uuid": "409259af-558d-4de5-80fd-1d00ac0829cf",
+    "resources": {
+        "media": [
+            {
+                "name": "cb_icon",
+                "type": "png",
+                "menuIcon": true,
+                "file": "images/catbus.png"
+            }
+        ]
+    },
+    "capabilities": [
+        ""
+    ],
+    "companyName": "jtannen1@binghamton.edu",
+    "shortName": "BearCatBus",
+    "longName": "BearCatBus",
+    "watchapp": {
+        "watchface": false
+    },
+    "versionCode": 1,
+    "appKeys": {},
+    "versionLabel": "1.0"
+}
