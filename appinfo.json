@@ -1,25 +1,30 @@
 {
-    "uuid": "409259af-558d-4de5-80fd-1d00ac0829cf",
-    "resources": {
-        "media": [
-            {
-                "name": "cb_icon",
-                "type": "png",
-                "menuIcon": true,
-                "file": "images/catbus.png"
-            }
-        ]
-    },
+    "companyName": "jtannen1@binghamton.edu",
+    "appKeys": {},
     "capabilities": [
         ""
     ],
-    "companyName": "jtannen1@binghamton.edu",
-    "shortName": "BearCatBus",
+    "resources": {
+        "media": [
+            {
+                "name": "DCR_MAP",
+                "file": "images/dcr_map.png",
+                "type": "png"
+            },
+            {
+                "name": "cb_icon",
+                "menuIcon": true,
+                "file": "images/catbus.png",
+                "type": "png"
+            }
+        ]
+    },
+    "uuid": "409259af-558d-4de5-80fd-1d00ac0829cf",
+    "versionCode": 1,
     "longName": "BearCatBus",
+    "shortName": "BearCatBus",
+    "versionLabel": "1.0",
     "watchapp": {
         "watchface": false
-    },
-    "versionCode": 1,
-    "appKeys": {},
-    "versionLabel": "1.0"
+    }
 }

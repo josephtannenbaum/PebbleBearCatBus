@@ -9,8 +9,6 @@ typedef struct bus_time {
   char * n;
 } bus_time;
   
-
-  
 extern void catbus_get_times(int loc, const int num_results, char ** times, char ** places, int * urgent);
 
 #endif

@@ -13,6 +13,127 @@
   
 #define BUS_TIME(v, hr, min, name) v->h = hr;v->m = min; v->n = name;
 
+bus_time ** get_union_times(void) {
+  bus_time ** union_times = (bus_time **) malloc(115 * sizeof(*union_times));
+  for(int i=0; i<115;i++) union_times[i]=malloc(sizeof(struct bus_time)); 
+  BUS_TIME(union_times[0],9,00, "WS")
+  BUS_TIME(union_times[1],10,00, "WS")
+  BUS_TIME(union_times[2],11,00, "WS")
+  BUS_TIME(union_times[3],12,00, "WS")
+  BUS_TIME(union_times[4],13,00, "WS")
+  BUS_TIME(union_times[5],14,00, "WS")
+  BUS_TIME(union_times[6],15,00, "WS")
+  BUS_TIME(union_times[7],16,00, "WS")
+  BUS_TIME(union_times[8],17,00, "WS")
+  BUS_TIME(union_times[9],18,00, "WS")
+  BUS_TIME(union_times[10],19,00, "WS")
+  BUS_TIME(union_times[11],20,00, "WS")
+  BUS_TIME(union_times[12],21,00, "WS")
+  BUS_TIME(union_times[13],22,00, "WS")
+  BUS_TIME(union_times[14],23,00, "WS")
+  BUS_TIME(union_times[15],24,00, "WS")
+  BUS_TIME(union_times[16],10,30, "LRS")
+  BUS_TIME(union_times[17],11,30, "LRS")
+  BUS_TIME(union_times[18],12,30, "LRS")
+  BUS_TIME(union_times[19],13,30, "LRS")
+  BUS_TIME(union_times[20],14,30, "LRS")
+  BUS_TIME(union_times[21],15,30, "LRS")
+  BUS_TIME(union_times[22],16,30, "LRS")
+  BUS_TIME(union_times[23],17,30, "LRS")
+  BUS_TIME(union_times[24],18,30, "LRS")
+  BUS_TIME(union_times[25],19,30, "LRS")
+  BUS_TIME(union_times[26],20,30, "LRS")
+  BUS_TIME(union_times[27],21,30, "LRS")
+  BUS_TIME(union_times[28],22,30, "LRS")
+  BUS_TIME(union_times[29],23,30, "LRS")
+  BUS_TIME(union_times[30],10,30, "DCR")
+  BUS_TIME(union_times[31],11,30, "DCR")
+  BUS_TIME(union_times[32],12,30, "DCR")
+  BUS_TIME(union_times[33],13,30, "DCR")
+  BUS_TIME(union_times[34],14,30, "DCR")
+  BUS_TIME(union_times[35],15,30, "DCR")
+  BUS_TIME(union_times[36],16,30, "DCR")
+  BUS_TIME(union_times[37],17,30, "DCR")
+  BUS_TIME(union_times[38],18,30, "DCR")
+  BUS_TIME(union_times[39],19,30, "DCR")
+  BUS_TIME(union_times[40],20,30, "DCR")
+  BUS_TIME(union_times[41],21,30, "DCR")
+  BUS_TIME(union_times[42],22,30, "DCR")
+  BUS_TIME(union_times[43],23,30, "DCR")
+  BUS_TIME(union_times[44],10,30, "RRT")
+  BUS_TIME(union_times[45],11,30, "RRT")
+  BUS_TIME(union_times[46],12,30, "RRT")
+  BUS_TIME(union_times[47],13,30, "RRT")
+  BUS_TIME(union_times[48],14,30, "RRT")
+  BUS_TIME(union_times[49],15,30, "RRT")
+  BUS_TIME(union_times[50],16,30, "RRT")
+  BUS_TIME(union_times[51],17,30, "RRT")
+  BUS_TIME(union_times[52],18,30, "RRT")
+  BUS_TIME(union_times[53],19,30, "RRT")
+  BUS_TIME(union_times[54],20,30, "RRT")
+  BUS_TIME(union_times[55],21,30, "RRT")
+  BUS_TIME(union_times[56],22,30, "RRT")
+  BUS_TIME(union_times[57],10,00, "OAK")
+  BUS_TIME(union_times[58],11,00, "OAK")
+  BUS_TIME(union_times[59],12,00, "OAK")
+  BUS_TIME(union_times[60],13,00, "OAK")
+  BUS_TIME(union_times[61],14,00, "OAK")
+  BUS_TIME(union_times[62],15,00, "OAK")
+  BUS_TIME(union_times[63],16,00, "OAK")
+  BUS_TIME(union_times[64],17,00, "OAK")
+  BUS_TIME(union_times[65],18,00, "OAK")
+  BUS_TIME(union_times[66],19,00, "OAK")
+  BUS_TIME(union_times[67],20,00, "OAK")
+  BUS_TIME(union_times[68],21,00, "OAK")
+  BUS_TIME(union_times[69],22,00, "OAK")
+  BUS_TIME(union_times[70],10,00, "UP")
+  BUS_TIME(union_times[71],11,00, "UP")
+  BUS_TIME(union_times[72],12,00, "UP")
+  BUS_TIME(union_times[73],13,00, "UP")
+  BUS_TIME(union_times[74],14,00, "UP")
+  BUS_TIME(union_times[75],15,00, "UP")
+  BUS_TIME(union_times[76],16,00, "UP")
+  BUS_TIME(union_times[77],17,00, "UP")
+  BUS_TIME(union_times[78],18,00, "UP")
+  BUS_TIME(union_times[79],19,00, "UP")
+  BUS_TIME(union_times[80],20,00, "UP")
+  BUS_TIME(union_times[81],21,00, "UP")
+  BUS_TIME(union_times[82],22,00, "UP")
+  BUS_TIME(union_times[83],23,00, "UP")
+  BUS_TIME(union_times[84],24,00, "UP")
+  BUS_TIME(union_times[85],9,45, "CS")
+  BUS_TIME(union_times[86],10,15, "CS")
+  BUS_TIME(union_times[87],10,45, "CS")
+  BUS_TIME(union_times[88],11,15, "CS")
+  BUS_TIME(union_times[89],11,45, "CS")
+  BUS_TIME(union_times[90],12,15, "CS")
+  BUS_TIME(union_times[91],12,45, "CS")
+  BUS_TIME(union_times[92],13,15, "CS")
+  BUS_TIME(union_times[93],13,45, "CS")
+  BUS_TIME(union_times[94],14,15, "CS")
+  BUS_TIME(union_times[95],14,45, "CS")
+  BUS_TIME(union_times[96],15,15, "CS")
+  BUS_TIME(union_times[97],15,45, "CS")
+  BUS_TIME(union_times[98],16,15, "CS")
+  BUS_TIME(union_times[99],16,45, "CS")
+  BUS_TIME(union_times[100],17,15, "CS")
+  BUS_TIME(union_times[101],17,45, "CS")
+  BUS_TIME(union_times[102],18,15, "CS")
+  BUS_TIME(union_times[103],18,45, "CS")
+  BUS_TIME(union_times[104],19,15, "CS")
+  BUS_TIME(union_times[105],19,45, "CS")
+  BUS_TIME(union_times[106],20,15, "CS")
+  BUS_TIME(union_times[107],20,45, "CS")
+  BUS_TIME(union_times[108],21,15, "CS")
+  BUS_TIME(union_times[109],21,45, "CS")
+  BUS_TIME(union_times[110],22,15, "CS")
+  BUS_TIME(union_times[111],22,45, "CS")
+  BUS_TIME(union_times[112],23,15, "CS")
+  BUS_TIME(union_times[113],23,45, "CS")
+  BUS_TIME(union_times[114],24,15, "CS")
+  return union_times;
+}
+
 bus_time ** get_up_times(void){
   bus_time ** up_times = (bus_time **) malloc(22 * sizeof(*up_times));
   for(int i=0; i<22;i++) up_times[i]=malloc(sizeof(struct bus_time));
@@ -114,6 +235,7 @@ int fmt_time(char ** str, int h, int m, int th, int tm) {
       }
     } else {
       if (th > 12) {
+        th -= 12;
         fmt_str =  PM_HRS;       
       } else if (th == 12) {
         fmt_str = PM_HRS;
@@ -147,7 +269,7 @@ void get_closest(bus_time *** loc_times, int loc_times_size, const int num_resul
   int mnext[num_results];
   char * p[num_results]; 
   for(int i=0;i<num_results;i++) { 
-    p[i] = "ERR";
+    p[i] = "N/A";
     mnext[i] = 61;
     hnext[i] = 99;
   }
@@ -196,7 +318,7 @@ void get_time_weekday(int * h, int * m, int * wd) {
 void catbus_get_times(int loc, const int num_results, char * outtimes[num_results], char * places[num_results], int * urgent) {
   int h, m, wd,num_times=0; 
   get_time_weekday(&h, &m, &wd);
-  //h=10;m=4;
+  //h=17;m=28;
   bus_time ** loc_times = NULL;
   switch (loc){
     case 0:
@@ -206,6 +328,10 @@ void catbus_get_times(int loc, const int num_results, char * outtimes[num_result
     case 1:
       loc_times = get_udc_times();
       num_times = 30;
+      break;
+    default:
+      loc_times = get_union_times();
+      num_times=115;
       break;
   }
   get_closest(&loc_times,num_times,num_results,outtimes,places,urgent,h,m,wd);

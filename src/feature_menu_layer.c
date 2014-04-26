@@ -1,19 +1,29 @@
 #include "pebble.h"
 #include "schedule.h"
+#include "stops_window.h"
+#include "settings_window.h"
   
 #define NUM_MENU_SECTIONS 2
 #define NUM_MENU_ICONS 3
 #define NUM_FIRST_MENU_ITEMS 5
-#define NUM_SECOND_MENU_ITEMS 1
+#define NUM_SECOND_MENU_ITEMS 2
 
-static const int num_results=6;
+//static int num_results;
 static int here_loc;
-static char * places[6];  
+static char ** places;  
 static int flasher_change=0;
-static int flasher_on[6];
-static char * place_title;
-static Window * map_window;
-static TextLayer * stoplist_text_layer;
+static int * flasher_changes;
+static int * flasher_on = NULL;
+
+static void setup_containers(int n) {
+  if(places) free(places);
+  if(flasher_on) free(flasher_on);
+  if(flasher_changes) free(flasher_changes);
+  num_results = n;
+  flasher_on = (int *) malloc(n*sizeof(int));
+  places = (char **) malloc(n*sizeof(char*));
+  flasher_changes = (int *) malloc(n*sizeof(int));
+}
   
 static Window *window;
 
@@ -33,10 +43,8 @@ static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t secti
   switch (section_index) {
     case 0:
       return num_results;
-
     case 1:
       return NUM_SECOND_MENU_ITEMS;
-
     default:
       return 0;
   }
@@ -50,35 +58,48 @@ static int16_t menu_get_header_height_callback(MenuLayer *menu_layer, uint16_t s
 
 // Here we draw what each header is
 static void menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, uint16_t section_index, void *data) {
-  switch (here_loc) {
+  switch (section_index) {
     case 0:
-      menu_cell_basic_header_draw(ctx, cell_layer, "You're at U. Plaza");
+      switch (here_loc) {
+        case 0:
+          menu_cell_basic_header_draw(ctx, cell_layer, "You're at U. Plaza");
+          break;
+        case 1:
+          menu_cell_basic_header_draw(ctx, cell_layer, "You're at UDC");
+          break;
+        case 2:
+          menu_cell_basic_header_draw(ctx, cell_layer, "You're on campus");
+          break;
+      }  
       break;
     case 1:
-      menu_cell_basic_header_draw(ctx, cell_layer, "You're at UDC");
+      menu_cell_basic_header_draw(ctx, cell_layer, "Settings");
       break;
-  }  
-    
+  }
 }
 
 // This is the menu item draw callback where you specify what each item should look like
 void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuIndex *cell_index, void *data) {
-  int* flasher_change_data = (int*) data;
+  //int* flasher_change_data = (int*) data;
+  int ** pt = (int **) data;
+  int * flasher_changes_data = *pt;
   // Determine which section we're going to draw in
   //tick_timer_service_unsubscribe();	
   char * times[num_results];
   int urgent[num_results];
+  char b[13];
   catbus_get_times(here_loc, num_results, times, places, urgent);
   if (cell_index->section == 0) {
       // Use the row to specify which item we'll draw
     if(cell_index->row < num_results) {
       menu_cell_basic_draw(ctx, cell_layer, places[cell_index->row], times[cell_index->row], NULL);
-      if(urgent[cell_index->row] && *flasher_change_data){
+      if(urgent[cell_index->row] && flasher_changes_data[cell_index->row]){
         if(!flasher_on[cell_index->row]) {
           menu_cell_basic_draw(ctx, cell_layer, "         !!!",times[cell_index->row],NULL);
           flasher_on[cell_index->row] = 1;
         } else flasher_on[cell_index->row] = 0;
-        *flasher_change_data=0;
+        //*flasher_change_data=0;
+        flasher_changes_data[cell_index->row] = 0;
       } else {
         if(flasher_on[cell_index->row])
           menu_cell_basic_draw(ctx, cell_layer, "         !!!",times[cell_index->row],NULL);
@@ -88,8 +109,22 @@ void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuIndex *c
       switch (cell_index->row) {
         case 0:
           // There is title draw for something more simple than a basic menu item
-          menu_cell_title_draw(ctx, cell_layer, "Settings");
+          switch (here_loc) {
+            case 0:
+              menu_cell_title_draw(ctx, cell_layer, "Loc: UP");
+              break;
+            case 1:
+              menu_cell_title_draw(ctx, cell_layer, "Loc: UDC");
+              break;
+            default:
+              menu_cell_title_draw(ctx, cell_layer, "Loc: Union");
+              break;
+          }
+          
           break;
+        case 1:
+          snprintf(b, 12, "Results: %d", num_results);
+          menu_cell_title_draw(ctx, cell_layer, b);
       }
   }
   for(int i =0;i<num_results;i++) {
@@ -98,54 +133,44 @@ void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuIndex *c
   }
 }
 
-static void map_window_load(Window *window) {
-  Layer *map_window_layer = window_get_root_layer(map_window);
-  GRect bounds = layer_get_bounds(map_window_layer);
-  //render_layer = layer_create(bounds);
-  stoplist_text_layer = text_layer_create(bounds);
-  if(strcmp(place_title, "DE") == 0) {
-    text_layer_set_text(stoplist_text_layer,"DE STOPS:\nHayes\nMeadows\nUniversity Plaza\nCourt St & Washington");
-  } else if(strcmp(place_title, "UP") == 0) {
-    text_layer_set_text(stoplist_text_layer,"UP STOPS:\nNewing\nCouper Building\nEast Gym\nUniversity Plaza\nMeadows\nHayes\nWashington Drive");
-  } else
-    text_layer_set_text(stoplist_text_layer,"UR STOPZ");
-  layer_add_child(map_window_layer, text_layer_get_layer(stoplist_text_layer));
-  
-  //InverterLayer *inverter_layer;
-  //inverter_layer = inverter_layer_create(GRect(0, 0, bounds.size.w, bounds.size.h));
-  //layer_add_child(map_window_layer, inverter_layer_get_layer(inverter_layer));
-}
-
-static void map_window_unload(Window *window) {
-  text_layer_destroy(stoplist_text_layer);
-}
-
 // Here we capture when a user selects a menu item
 void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
   // Use the row to specify which item will receive the select action
+  if (cell_index->section == 0) {
     place_title = places[cell_index->row];
-    map_window = window_create();
-    window_set_fullscreen(map_window, true);
-    window_set_window_handlers(map_window, (WindowHandlers) {
-      .load = map_window_load,
-      .unload = map_window_unload,
+    stops_window = window_create();
+    window_set_fullscreen(stops_window, true);
+    window_set_window_handlers(stops_window, (WindowHandlers) {
+      .load = stops_window_load,
+      .unload = stops_window_unload,
     });
-    window_stack_push(map_window, true);
+    window_stack_push(stops_window, true);
+  } else {
+    if(cell_index->row == 0) {
+      here_loc++; if(here_loc==3) here_loc=0;
+      for(int i=0;i<num_results;i++) flasher_on[i]=0;
+    } else {
+      if(num_results == 15) setup_containers(6);
+      else setup_containers(num_results+1);;
+    }
+  }
 }
 
 //static int flasher_inverted = 0;
 void menu_update(struct tm *tick_time, TimeUnits units_changed) {
-  flasher_change=1;
+  //flasher_change=1;
+  for(int i =0;i<num_results;i++)flasher_changes[i]=1;
   menu_layer_reload_data	(menu_layer);
   //flasher_change=0;
 }
 
 // This initializes the menu upon window load
 void window_load(Window *window) {
-  here_loc = 1;
+  here_loc = 2;
   //for(int i=0;i<num_results;i++) flasher_layers[i]=NULL;
   for(int i=0;i<num_results;i++) flasher_on[i]=0;
-  flasher_change = 0;
+  //flasher_change = 0;
+  for(int i =0;i<num_results;i++)flasher_changes[i]=0;
   // And also load the background
   //menu_background = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND_BRAINS);
 
@@ -159,7 +184,7 @@ void window_load(Window *window) {
   menu_layer = menu_layer_create(bounds);
 
   // Set all the callbacks for the menu layer
-  menu_layer_set_callbacks(menu_layer, &flasher_change, (MenuLayerCallbacks){
+  menu_layer_set_callbacks(menu_layer, &flasher_changes, (MenuLayerCallbacks){
     .get_num_sections = menu_get_num_sections_callback,
     .get_num_rows = menu_get_num_rows_callback,
     .get_header_height = menu_get_header_height_callback,
@@ -182,6 +207,7 @@ void window_unload(Window *window) {
 }
 
 int main(void) {
+  setup_containers(6);
   window = window_create();
 
   // Setup the window handlers
@@ -193,6 +219,5 @@ int main(void) {
   window_stack_push(window, true /* Animated */);
 
   app_event_loop();
-
   window_destroy(window);
 }
