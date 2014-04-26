@@ -77,9 +77,11 @@ bus_time ** get_udc_times(void){
   return udc_times;
 }
 
-void fmt_time(char ** str, int h, int m, int th, int tm) {
-  char * fmt_str; int mins=0; int m_delta=0,t_delta=0;
-  if (h == th) { // _MINS
+int fmt_time(char ** str, int h, int m, int th, int tm) {
+  char * fmt_str; int mins=0; int m_delta=0,h_delta=0;
+  m_delta = tm-m;
+  h_delta = th-h;
+  if (h == th || (th == h+1 && m_delta < 0)) { // _MINS
     mins=1;
     if (tm < 10) { // _ZMIN
       if (th > 12) {
@@ -124,73 +126,27 @@ void fmt_time(char ** str, int h, int m, int th, int tm) {
   if (th == 99) {
     *str = malloc(strlen(NO_MORE_BUS)+2);
     snprintf(*str, strlen(NO_MORE_BUS)+1, NO_MORE_BUS);
-    return;
+    return 0;
   } else {
-    m_delta = tm-m;
-    t_delta = th-h;
     if (m_delta < 0) {
-      t_delta--;
+      h_delta--;
       m_delta+=60;
     }
     *str = malloc(strlen(fmt_str)+3);
     if (mins) // we're just showing minutes-until
       snprintf(*str, strlen(fmt_str)+3, fmt_str, th,tm,m_delta );
     else
-      snprintf(*str, strlen(fmt_str)+3, fmt_str, th,tm,t_delta,m_delta );
+      snprintf(*str, strlen(fmt_str)+3, fmt_str, th,tm,h_delta,m_delta );
+    
+    return (h_delta * 60) + m_delta < 10;
   }
 }
 
-void get_three_closest(bus_time *** loc_times, int loc_times_size, char * ret[5], char * places[5], int h, int m, const int wd) {
-  /*int h1=99,h2=99,h3=99;
-  int m1=61,m2=61,m3=61;
-  char * p1="ERR";
-  char *p2="ERR";
-  char *p3="ERR";
-  int th, tm;
-  for(int i = 0;i<loc_times_size;i++) {
-    th = (*loc_times)[i]->h;
-    tm = (*loc_times)[i]->m;
-    if((th > h) || ((th == h) && (tm >= m))) {
-      if((th < h1) || ((th == h1) && (tm < m1))) { // case: ursurp slot 1
-        h3 = h2;h2 = h1; // move lower two down
-        m3 = m2;m2 = m1;
-        p3=p2;p2=p1;
-        
-        h1=th;
-        m1=tm;
-        p1 = (*loc_times)[i]->n;
-      } else if ((th < h2) || ((th == h2) && (tm < m2))) {// case: ursurp slot 2
-        h3 = h2; // move second slot down
-        m3 = m2;
-        p3 = p2;
-        
-        h2 = th;
-        m2 = tm;
-        p2 = (*loc_times)[i]->n;
-      } else if ((th < h3) || ((th == h3) && (tm < m3))) {// case: ursurp slot 3
-        h3 = th; // just overwrite
-        m3 = tm;
-        p3 = (*loc_times)[i]->n;
-      }
-    }
-  }
-  
-  fmt_time(&ret[0], h, m, h1, m1);
-  fmt_time(&ret[1], h, m, h2, m2);
-  fmt_time(&ret[2], h, m, h3, m3);
-  
-  places[0] = malloc(4);
-  snprintf(places[0], 4, "%s", p1);
-  places[1] = malloc(4);
-  snprintf(places[1], 4, "%s", p2);
-  places[2] = malloc(4);
-  snprintf(places[2], 4, "%s", p3);*/
-  // OLD
-  // NEW
-  int hnext[5];
-  int mnext[5];
-  char * p[5]; 
-  for(int i=0;i<5;i++) { 
+void get_closest(bus_time *** loc_times, int loc_times_size, const int num_results, char * ret[num_results], char * places[num_results], int * urgent, int h, int m, const int wd) {
+  int hnext[num_results];
+  int mnext[num_results];
+  char * p[num_results]; 
+  for(int i=0;i<num_results;i++) { 
     p[i] = "ERR";
     mnext[i] = 61;
     hnext[i] = 99;
@@ -200,9 +156,9 @@ void get_three_closest(bus_time *** loc_times, int loc_times_size, char * ret[5]
     th = (*loc_times)[i]->h;
     tm = (*loc_times)[i]->m;
     if((th > h) || ((th == h) && (tm >= m))) {
-      for(int j=0;j<5;j++) {
+      for(int j=0;j<num_results;j++) {
         if((th < hnext[j]) || ((th == hnext[j]) && (tm < mnext[j]))) { // ursurp slot
-          for(int k=4-j;k>j;k--) { // move other slots down
+          for(int k=num_results-1;k>j;k--) { // move other slots down
             hnext[k] = hnext[k-1];
             mnext[k] = mnext[k-1];
             p[k] = p[k-1];
@@ -210,16 +166,16 @@ void get_three_closest(bus_time *** loc_times, int loc_times_size, char * ret[5]
           hnext[j] = th;
           mnext[j] = tm;
           p[j] = (*loc_times)[i]->n;
+          break;
         }
       }
     }
   }
-  for(int i=0;i<5;++i) {
-    fmt_time(&ret[i], h, m, hnext[i], mnext[i]);
+  for(int i=0;i<num_results;++i) {
+    urgent[i] = fmt_time(&ret[i], h, m, hnext[i], mnext[i]);
     places[i] = malloc(4);
     snprintf(places[i], 4, "%s", p[i]);
   }
-  
 }
 
 static char strftime_buffer[8];
@@ -237,9 +193,10 @@ void get_time_weekday(int * h, int * m, int * wd) {
   *m = atoi(strftime_buffer);
 }
 
-void catbus_get_times(int loc, char * outtimes[5], char * places[5]) {
+void catbus_get_times(int loc, const int num_results, char * outtimes[num_results], char * places[num_results], int * urgent) {
   int h, m, wd,num_times=0; 
   get_time_weekday(&h, &m, &wd);
+  //h=10;m=4;
   bus_time ** loc_times = NULL;
   switch (loc){
     case 0:
@@ -251,7 +208,7 @@ void catbus_get_times(int loc, char * outtimes[5], char * places[5]) {
       num_times = 30;
       break;
   }
-  get_three_closest(&loc_times, num_times, outtimes, places, h,m,wd);
+  get_closest(&loc_times,num_times,num_results,outtimes,places,urgent,h,m,wd);
   for(int i=0; i<num_times;i++) free(loc_times[i]->n);
   for(int i=0; i<num_times;i++) free(loc_times[i]);
   free(loc_times);
